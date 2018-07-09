@@ -8,7 +8,13 @@
 
 #ifndef DSLICE_H
 #define DSLICE_H
-
+#ifdef __has_include
+#  if __has_include(<span>) // Do we have std::span?
+#    include<span>
+#  elif __has_include(<gsl/span>) // Do we have gsl::span
+#    include <gsl/span>
+#  endif
+#endif
 /**
  * __dslice is the C++ equivalent to D's T[] dynamic array and is to be used whenever
  * a T[] shows up in an extern(C++) declaration in D.
@@ -68,6 +74,14 @@ struct __dslice
         length = u.size();
         ptr    = const_cast<T*>(u.data());
     }
+    
+#ifdef __has_include
+#  if __has_include(<span>)
+    operator std::span<T>(){ return std::span<T>(ptr,length);};
+#  elif __has_include(<gsl/span>)
+    operator gsl::span<T>(){ return gsl::span<T>(ptr,length);};
+#  endif
+#endif
 
 };
 
